@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Mopidy Sample</title>
+	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
 </head>
 <body>
 	
@@ -40,11 +41,15 @@
 	            return args;
 	        });
 	};
+	
+	var make_button = function (tracklist, i) {
+		return '<a class="pure-button track" href="#" idx="' + i + '">' + tracklist[i].name + '</a>';
+	};
 
 	var get_names_from_tracklist = function(tracklist) {
 		var ret = "";
 		for (var i = 0; i < tracklist.length; i++) {
-			ret += tracklist[i].name + "\n";
+			ret += make_button(tracklist, i) + "<br />";
 		}
 
 		console.log("Get names from tracklist");
@@ -83,9 +88,32 @@
 	        .done();                       // ...or they'll be thrown here
 	};
 
+	var loadFirstPlaylist = function() {
+		mopidy.playlists.getPlaylists()
+			.fold(get, 0)
+			.fold(get, 'tracks')
+			.then(fill_that_in)
+			.done(registerOnClick);
+	};
+
+	var registerOnClick = function() {
+		$('#fill_in').on('click', '.track', function() {
+			index = $(this).attr("idx");
+			console.log("attempting to get track " + index);
+			mopidy.playlists.getPlaylists()
+				.fold(get, 0)
+				.fold(get, 'tracks')
+				.then(mopidy.tracklist.add)
+				.fold(get, index)
+				.then(mopidy.playback.play);
+		});
+	}
+
 	var mopidy = new Mopidy();             // Connect to server
 	mopidy.on(console.log.bind(console));  // Log all events
-	mopidy.on("state:online", queueAndPlay);
+	//mopidy.on("state:online", queueAndPlay);
+	mopidy.on("state:online", loadFirstPlaylist);
+
 	</script>
 </body>
 </html>
