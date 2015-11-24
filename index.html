@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Mopidy Sample</title>
+</head>
+<body>
+	
+	<div id="fill_in">
+		
+	</div>
+
+	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+	<script type="text/javascript" src="/mopidy/mopidy.min.js"></script>
+	<script type="text/javascript">
+	var get = function (key, object) {
+	    return object[key];
+	};
+
+	var printTypeAndName = function (model) {
+	    console.log(model.__model__ + ": " + model.name);
+	    // By returning the playlist, this function can be inserted
+	    // anywhere a model with a name is piped in the chain.
+	    return model;
+	};
+
+	var trackDesc = function (track) {
+	    return track.name + " by " + track.artists[0].name +
+	        " from " + track.album.name;
+	};
+
+	var printNowPlaying = function () {
+	    // By returning any arguments we get, the function can be inserted
+	    // anywhere in the chain.
+	    var args = arguments;
+	    return mopidy.playback.getCurrentTrack()
+	        .then(function (track) {
+	            console.log("Now playing:", trackDesc(track));
+	            return args;
+	        });
+	};
+
+	var get_names_from_tracklist = function(tracklist) {
+		var ret = "";
+		for (var i = 0; i < tracklist.length; i++) {
+			ret += tracklist[i].name + "\n";
+		}
+
+		console.log("Get names from tracklist");
+		console.log(ret);
+		return ret;
+	};
+
+	var fill_that_in = function(tracklist) {
+		console.log("tracklist: ");
+		console.log(tracklist);
+		$('#fill_in').html(get_names_from_tracklist(tracklist));
+	};
+
+	var queueAndPlay = function (playlistNum, trackNum) {
+	    playlistNum = playlistNum || 0;
+	    trackNum = trackNum || 0;
+	    mopidy.playlists.getPlaylists()
+	        // => list of Playlists
+	        .fold(get, playlistNum)
+	        // => Playlist
+	        .then(printTypeAndName)
+	        // => Playlist
+	        .fold(get, 'tracks')
+	        // => list of Tracks
+	        .then(mopidy.tracklist.add)
+	        // => list of TlTracks
+	        .fold(get, trackNum)
+	        // => TlTrack
+	        .then(mopidy.playback.play)
+	        // => null
+	        .then(printNowPlaying)
+	        // => null
+	        .then(mopidy.tracklist.getTracks().then(fill_that_in))
+	        .catch(console.error.bind(console))  // Handle errors here
+	        // => null
+	        .done();                       // ...or they'll be thrown here
+	};
+
+	var mopidy = new Mopidy();             // Connect to server
+	mopidy.on(console.log.bind(console));  // Log all events
+	mopidy.on("state:online", queueAndPlay);
+	</script>
+</body>
+</html>
