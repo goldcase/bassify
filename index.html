@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Mopidy Sample</title>
 	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">	
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,11 +17,13 @@
 
 	<div class="pure-g center">
 		<div class="pure-u-1 control">
-			<a class="pure-button" id="skip" href="#">Skip</a>
-			<a class="pure-button" id="resume" href="#">Resume</a>
-			<a class="pure-button" id="pause" href="#">Pause</a>
-			<a class="pure-button" id="previous" href="#">Previous</a>
+			<a class="pure-button pure-button-primary" id="previous" href="#"><i class="fa fa-step-backward"></i></a>
+			<a class="pure-button pure-button-primary" id="resume" href="#"><i class="fa fa-play"></i></a>
+			<a class="pure-button pure-button-primary" id="pause" href="#"><i class="fa fa-pause"></i></a>
+			<a class="pure-button pure-button-primary" id="skip" href="#"><i class="fa fa-step-forward"></i></a>
 		</div>
+		<br>
+		<br>
 		<div class="pure-u-1-3"></div>
 		<div class="pure-u-1-3" id="fill_in"></div>
 		<div class="pure-u-1-3"></div>
